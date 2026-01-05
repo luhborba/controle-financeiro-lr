@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "yes"
+version = "0.1.0"
+description = ""
+authors = ["Luciano Borba <luhborbafilho@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "5.0.1"
+psycopg2-binary = "2.9.9"
+django-allauth = "0.61.1"
+python-decouple = "3.8"
+gunicorn = "21.2.0"
+whitenoise = "6.6.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "8.0.0"
+pytest-django = "4.7.0"
+pytest-cov = "4.1.0"
+factory-boy = "3.3.0"
+flake8 = "7.0.0"
+black = "24.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
