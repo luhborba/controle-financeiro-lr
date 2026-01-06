@@ -161,3 +161,9 @@ if not DEBUG:
     EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
     EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
+
+
+# Desabilitar WhiteNoise em testes
+import sys
+if 'test' in sys.argv or 'pytest' in sys.modules:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
