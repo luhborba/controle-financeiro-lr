@@ -1,0 +1,132 @@
+{% extends "base/base.html" %}
+
+{% block title %}Novo Gasto - Controle Financeiro LR{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Novo Gasto</h1>
+        <p class="mt-1 text-sm text-gray-600">Registre um novo gasto</p>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Nome do Gasto *</label>
+                    <input type="text" name="nome" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Categoria *</label>
+                    <select name="categoria" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Selecione...</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Valor *</label>
+                    <input type="number" name="valor_total" step="0.01" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Local</label>
+                    <input type="text" name="local" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data *</label>
+                    <input type="date" name="data_gasto" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Mês Referência *</label>
+                    <input type="date" name="mes_referencia" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Meio de Pagamento *</label>
+                    <select name="meio_pagamento" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Selecione...</option>
+                        {% for meio in meios_pagamento %}
+                        <option value="{{ meio.id }}">{{ meio.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Cartão (opcional)</label>
+                    <select name="cartao" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Nenhum</option>
+                        {% for cartao in cartoes %}
+                        <option value="{{ cartao.id }}">{{ cartao.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Descrição</label>
+                    <textarea name="descricao" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="parcelado" id="parcelado" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="parcelado" class="ml-2 block text-sm text-gray-900">
+                            Parcelado
+                        </label>
+                    </div>
+                </div>
+
+                <div id="parcelamento-fields" class="hidden sm:col-span-2 grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Número de Parcelas</label>
+                        <input type="number" name="numero_parcelas" value="1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Parcela Atual</label>
+                        <input type="number" name="parcela_atual" value="1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="pago" id="pago" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="pago" class="ml-2 block text-sm text-gray-900">
+                            Já foi pago
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'gastos:lista' %}" class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Mostrar/esconder campos de parcelamento
+    const parceladoCheckbox = document.getElementById('parcelado');
+    const parcelamentoFields = document.getElementById('parcelamento-fields');
+    
+    parceladoCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            parcelamentoFields.classList.remove('hidden');
+        } else {
+            parcelamentoFields.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

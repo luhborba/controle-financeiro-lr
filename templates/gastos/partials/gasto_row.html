@@ -1,0 +1,54 @@
+<tr id="gasto-{{ gasto.id }}" class="hover:bg-gray-50">
+    <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900">{{ gasto.nome }}</div>
+        {% if gasto.local %}
+        <div class="text-sm text-gray-500">{{ gasto.local }}</div>
+        {% endif %}
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap">
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+            {{ gasto.categoria.nome }}
+        </span>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        R$ {{ gasto.valor_total }}
+        {% if gasto.parcelado %}
+        <div class="text-xs text-gray-500">{{ gasto.parcela_atual }}/{{ gasto.numero_parcelas }}</div>
+        {% endif %}
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        {{ gasto.data_gasto|date:"d/m/Y" }}
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap">
+        <button 
+            hx-post="{% url 'gastos:marcar_pago' gasto.id %}"
+            hx-target="#gasto-{{ gasto.id }}"
+            hx-swap="outerHTML"
+            class="cursor-pointer focus:outline-none"
+        >
+            {% if gasto.pago %}
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                <i class="fas fa-check mr-1"></i> Pago
+            </span>
+            {% else %}
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                <i class="fas fa-clock mr-1"></i> Pendente
+            </span>
+            {% endif %}
+        </button>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+        <a href="{% url 'gastos:editar' gasto.id %}" class="text-blue-600 hover:text-blue-900">
+            <i class="fas fa-edit"></i>
+        </a>
+        <button 
+            hx-post="{% url 'gastos:deletar' gasto.id %}"
+            hx-confirm="Tem certeza que deseja deletar este gasto?"
+            hx-target="#gasto-{{ gasto.id }}"
+            hx-swap="delete"
+            class="text-red-600 hover:text-red-900 focus:outline-none"
+        >
+            <i class="fas fa-trash"></i>
+        </button>
+    </td>
+</tr>
