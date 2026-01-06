@@ -51,9 +51,17 @@ jobs:
       
       - name: Executar testes
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
-          SECRET_KEY: test-secret-key-for-ci
+          # Variáveis de ambiente para o CI
+          POSTGRES_DB: test_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          SECRET_KEY: test-secret-key-for-ci-only-not-for-production
           DEBUG: False
+          ALLOWED_HOSTS: localhost,127.0.0.1
+          LANGUAGE_CODE: pt-br
+          TIME_ZONE: America/Sao_Paulo
         run: |
           poetry run pytest --cov=apps --cov-report=term-missing --cov-fail-under=70
       
