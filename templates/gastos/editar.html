@@ -1,0 +1,301 @@
+{% extends "base/base.html" %}
+
+{% block title %}Editar Gasto - Controle Financeiro LR{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Editar Gasto</h1>
+        <p class="mt-1 text-sm text-gray-600">Atualize as informações do gasto</p>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+        <form method="post" class="space-y-6" id="form-gasto">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Nome do Gasto *</label>
+                    <input 
+                        type="text" 
+                        name="nome" 
+                        value="{{ gasto.nome }}"
+                        required 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Categoria *</label>
+                    <select 
+                        name="categoria" 
+                        required 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                        <option value="">Selecione...</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" {% if categoria.id == gasto.categoria.id %}selected{% endif %}>
+                            {{ categoria.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Valor *</label>
+                    <div class="relative mt-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">R$</span>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="valor_display"
+                            placeholder="0,00"
+                            class="block w-full pl-12 pr-3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        >
+                        <input 
+                            type="hidden" 
+                            name="valor_total" 
+                            id="valor_total"
+                        >
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Local</label>
+                    <input 
+                        type="text" 
+                        name="local" 
+                        value="{{ gasto.local }}"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data *</label>
+                    <input 
+                        type="date" 
+                        name="data_gasto" 
+                        value="{{ gasto.data_gasto|date:'Y-m-d' }}"
+                        required 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Mês Referência *</label>
+                    <input 
+                        type="date" 
+                        name="mes_referencia" 
+                        value="{{ gasto.mes_referencia|date:'Y-m-d' }}"
+                        required 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Meio de Pagamento *</label>
+                    <select 
+                        name="meio_pagamento" 
+                        required 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                        <option value="">Selecione...</option>
+                        {% for meio in meios_pagamento %}
+                        <option value="{{ meio.id }}" {% if meio.id == gasto.meio_pagamento.id %}selected{% endif %}>
+                            {{ meio.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Cartão (opcional)</label>
+                    <select 
+                        name="cartao" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                        <option value="">Nenhum</option>
+                        {% for cartao in cartoes %}
+                        <option value="{{ cartao.id }}" {% if gasto.cartao and cartao.id == gasto.cartao.id %}selected{% endif %}>
+                            {{ cartao.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Descrição</label>
+                    <textarea 
+                        name="descricao" 
+                        rows="3" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >{{ gasto.descricao }}</textarea>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        <input 
+                            type="checkbox" 
+                            name="parcelado" 
+                            id="parcelado" 
+                            {% if gasto.parcelado %}checked{% endif %}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        >
+                        <label for="parcelado" class="ml-2 block text-sm text-gray-900">
+                            Parcelado
+                        </label>
+                    </div>
+                </div>
+
+                <div id="parcelamento-fields" class="{% if not gasto.parcelado %}hidden{% endif %} sm:col-span-2 grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Número de Parcelas</label>
+                        <input 
+                            type="number" 
+                            name="numero_parcelas" 
+                            value="{{ gasto.numero_parcelas }}"
+                            min="1" 
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Parcela Atual</label>
+                        <input 
+                            type="number" 
+                            name="parcela_atual" 
+                            value="{{ gasto.parcela_atual }}"
+                            min="1" 
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        >
+                    </div>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        <input 
+                            type="checkbox" 
+                            name="pago" 
+                            id="pago" 
+                            {% if gasto.pago %}checked{% endif %}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        >
+                        <label for="pago" class="ml-2 block text-sm text-gray-900">
+                            Já foi pago
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a 
+                    href="{% url 'gastos:lista' %}" 
+                    class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                    Cancelar
+                </a>
+                <button 
+                    type="submit" 
+                    class="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                    <i class="fas fa-save mr-2"></i>
+                    Atualizar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Botão de deletar -->
+    <div class="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-sm font-medium text-red-800">Zona de Perigo</h3>
+                <p class="mt-1 text-sm text-red-600">Deletar este gasto é uma ação irreversível.</p>
+            </div>
+            <form method="post" action="{% url 'gastos:deletar' gasto.id %}" onsubmit="return confirm('Tem certeza que deseja deletar este gasto?');">
+                {% csrf_token %}
+                <button 
+                    type="submit" 
+                    class="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                    <i class="fas fa-trash mr-2"></i>
+                    Deletar Gasto
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Máscara de dinheiro brasileira
+    const valorDisplay = document.getElementById('valor_display');
+    const valorHidden = document.getElementById('valor_total');
+    const valorInicial = "{{ gasto.valor_total }}";
+    
+    // Formata número para moeda brasileira (visual)
+    function formatarMoeda(valor) {
+        // Remove tudo que não é dígito
+        valor = valor.replace(/\D/g, '');
+        
+        // Converte para número e divide por 100
+        valor = (Number(valor) / 100).toFixed(2);
+        
+        // Formata com vírgula e ponto
+        valor = valor.replace('.', ',');
+        valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        
+        return valor;
+    }
+    
+    // Converte moeda formatada para número (backend)
+    function converterParaNumero(valor) {
+        // Remove pontos de milhar e troca vírgula por ponto
+        return valor.replace(/\./g, '').replace(',', '.');
+    }
+    
+    // Formata ao carregar a página
+    window.addEventListener('DOMContentLoaded', function() {
+        if (valorInicial) {
+            // Pega o valor do banco (ex: 150.00)
+            // Multiplica por 100 para transformar em centavos
+            const valorEmCentavos = Math.round(parseFloat(valorInicial) * 100).toString();
+            
+            // Formata para exibição (150,00)
+            valorDisplay.value = formatarMoeda(valorEmCentavos);
+            
+            // Define o valor hidden com formato correto (150.00)
+            valorHidden.value = valorInicial;
+        }
+    });
+    
+    // Aplica máscara enquanto digita
+    valorDisplay.addEventListener('input', function(e) {
+        let valor = e.target.value;
+        valor = formatarMoeda(valor);
+        e.target.value = valor;
+        
+        // Atualiza o campo hidden com valor numérico (ex: 150.00)
+        valorHidden.value = converterParaNumero(valor);
+    });
+    
+    // Garante que antes de submeter, o valor está correto
+    document.getElementById('form-gasto').addEventListener('submit', function(e) {
+        const valorFinal = converterParaNumero(valorDisplay.value);
+        valorHidden.value = valorFinal;
+        
+        console.log('Valor sendo enviado:', valorFinal); // Debug
+    });
+    
+    // Mostrar/esconder campos de parcelamento
+    const parceladoCheckbox = document.getElementById('parcelado');
+    const parcelamentoFields = document.getElementById('parcelamento-fields');
+    
+    parceladoCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            parcelamentoFields.classList.remove('hidden');
+        } else {
+            parcelamentoFields.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

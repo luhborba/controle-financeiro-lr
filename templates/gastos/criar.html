@@ -10,7 +10,7 @@
     </div>
 
     <div class="bg-white shadow rounded-lg p-6">
-        <form method="post" class="space-y-6">
+        <form method="post" class="space-y-6" id="form-gasto">
             {% csrf_token %}
             
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -31,7 +31,23 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Valor *</label>
-                    <input type="number" name="valor_total" step="0.01" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <div class="relative mt-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">R$</span>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="valor_display"
+                            placeholder="0,00"
+                            required
+                            class="block w-full pl-12 pr-3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        >
+                        <input 
+                            type="hidden" 
+                            name="valor_total" 
+                            id="valor_total"
+                        >
+                    </div>
                 </div>
 
                 <div>
@@ -117,7 +133,36 @@
 </div>
 
 <script>
-    // Mostrar/esconder campos de parcelamento
+    const valorDisplay = document.getElementById('valor_display');
+    const valorHidden = document.getElementById('valor_total');
+    
+    function formatarMoeda(valor) {
+        valor = valor.replace(/\D/g, '');
+        valor = (Number(valor) / 100).toFixed(2);
+        valor = valor.replace('.', ',');
+        valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        return valor;
+    }
+    
+    function converterParaNumero(valor) {
+        return valor.replace(/\./g, '').replace(',', '.');
+    }
+    
+    valorDisplay.addEventListener('input', function(e) {
+        let valor = e.target.value;
+        valor = formatarMoeda(valor);
+        e.target.value = valor;
+        valorHidden.value = converterParaNumero(valor);
+    });
+    
+    // Garante conversão no submit
+    document.getElementById('form-gasto').addEventListener('submit', function(e) {
+        const valorFinal = converterParaNumero(valorDisplay.value);
+        valorHidden.value = valorFinal;
+        console.log('Valor sendo enviado:', valorFinal);
+    });
+    
+    // Parcelamento
     const parceladoCheckbox = document.getElementById('parcelado');
     const parcelamentoFields = document.getElementById('parcelamento-fields');
     
