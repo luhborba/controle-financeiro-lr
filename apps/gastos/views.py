@@ -7,6 +7,9 @@ from .models import Gasto, MeioPagamento
 from apps.categorias.models import Categoria
 from apps.cartoes.models import Cartao
 from apps.emprestimos.models import Emprestimo
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -124,16 +127,41 @@ def editar_gasto(request, pk):
 @login_required
 @require_http_methods(["POST"])
 def deletar_gasto(request, pk):
-    """Deleta um gasto - Simplificado para funcionar com HTMX."""
+    """Deleta um gasto - Versão tradicional (redirect)."""
     gasto = get_object_or_404(Gasto, pk=pk, usuario=request.user)
     gasto.delete()
     
-    # HTMX: retorna vazio para remover a linha
-    if request.headers.get('HX-Request'):
-        return HttpResponse(status=200)
-    
     messages.success(request, 'Gasto deletado com sucesso!')
     return redirect('gastos:lista')
+
+
+@login_required
+@require_http_methods(["POST"])
+def deletar_gasto_htmx(request, pk):
+    """
+    Deleta um gasto via HTMX.
+    
+    Endpoint específico para requisições HTMX.
+    Retorna HTTP 200 vazio para remover o elemento do DOM.
+    """
+    logger.info(f"DELETE HTMX chamado para gasto {pk}")
+    logger.info(f"Headers: {dict(request.headers)}")
+    logger.info(f"Método: {request.method}")
+    
+    # Verificar se é requisição HTMX
+    if not request.headers.get('HX-Request'):
+        logger.warning("Requisição não é HTMX!")
+        return HttpResponse('Método não permitido', status=405)
+    
+    # Buscar e deletar
+    gasto = get_object_or_404(Gasto, pk=pk, usuario=request.user)
+    nome_gasto = gasto.nome
+    gasto.delete()
+    
+    logger.info(f"Gasto '{nome_gasto}' deletado com sucesso!")
+    
+    # Retornar resposta vazia com status 200
+    return HttpResponse('', status=200)
 
 
 @login_required

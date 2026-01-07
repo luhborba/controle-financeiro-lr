@@ -42,10 +42,10 @@
             <i class="fas fa-edit"></i>
         </a>
         <button 
-            hx-post="{% url 'gastos:deletar' gasto.id %}"
+            hx-post="{% url 'gastos:deletar_htmx' gasto.id %}"
             hx-confirm="Tem certeza que deseja deletar este gasto?"
             hx-target="#gasto-{{ gasto.id }}"
-            hx-swap="delete"
+            hx-swap="outerHTML swap:0.5s"
             class="text-red-600 hover:text-red-900 focus:outline-none"
         >
             <i class="fas fa-trash"></i>
